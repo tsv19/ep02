@@ -2,18 +2,61 @@
 #include "utils.h"
 
 
-void imprime_sistema(SisLinear_T *sl){
-	for (int i = 0; i < sl->n; i++){
-		for (int j = 0; j < sl->n; j++)
-			printf("%lf ", sl->coeficientes[i][j]);
-		pritnf("\n");
-	}
-	pritnf("\n");
+
+// 
+void imprime_solucao(SisLinear_T *sl){
+	printf("solucao: ");
+	
+	// for (int i = 0; i < sl->n; i++){
+	// 	printf("%lf ", );
+	// }
+
+	printf("\n");
 }
 
 
-void gera_sistema_linear(SisLinear_T *sl){
+// 
+void imprime_termos_indep(SisLinear_T *sl){
+	for (int i = 0; i < sl->n; i++)
+		printf("%1.0f ", sl->termos_indep[i]);
+	printf("\n");
+}
 
+
+// 
+void gera_termos_indep(SisLinear_T *sl){
+	for (int i = 0; i < sl->n; i++)
+		sl->termos_indep[i] = evaluator_evaluate_x(sl->fx[sl->k], (double)(i));
+}
+
+
+// 
+void imprime_sistema_linear(SisLinear_T *sl){
+	for (int i = 0; i < sl->n; i++){
+		for (int j = 0; j < sl->n; j++)
+			printf("%1.0f ", sl->coeficientes[i][j]);
+		printf("\n");
+	}
+	printf("\n");
+}
+
+
+// 
+void gera_sistema_linear(SisLinear_T *sl){
+	int w = 0, l = sl->k - 1;
+
+	for (int i = 0; i < sl->n; i++)
+		sl->coeficientes[i][i] = evaluator_evaluate_x(sl->fx[l/2], (double)i);
+
+
+	for (int indice = (sl->k - 1)/2; indice >= 1; indice--){
+		for (int col = indice, lin = 0; col < sl->n; col++, lin++){
+			sl->coeficientes[lin][col] = evaluator_evaluate_x(sl->fx[w], (double)lin);
+			sl->coeficientes[col][lin] = evaluator_evaluate_x(sl->fx[l], (double)lin);
+		}
+		w++;
+		l--;
+	}
 }
 
 
@@ -32,17 +75,19 @@ void ajusta_sistema_linear(SisLinear_T *sl){
 
 
 // destroi o sl
-void destroi_SL(SisLinear_T *sl){
-	for (int i = 0; i < sl->n; i++)
+void destroi_sistema_linear(SisLinear_T *sl){
+	for (int i = 0; i <= sl->k; i++)
 		free(sl->fx[i]);
+
+	free(sl->matriz);
+	free(sl->coeficientes);
+	free(sl->termos_indep);
 	free(sl);
 }
 
 
 // aloca uma regiao de memoria para o sl
-SisLinear_T *aloca_SL(){
-	// aloca um vetor de ponteiros void de 
-	// tamanho n para receber as funcoes do sl 
+SisLinear_T *aloca_sistema_linear(){
 	return (SisLinear_T *)malloc(sizeof(SisLinear_T));
 }
 
@@ -50,17 +95,19 @@ SisLinear_T *aloca_SL(){
 // le a os dados de entrada
 void read_input(SisLinear_T *sl, double *epsilon, unsigned int *max_iter){
 	// dimensao do SL
-	scanf(" %ld", &sl->n);
+	scanf(" %u", &sl->n);
 	
 	// número de diagonais (sempre um número ímpar, k < n)
-    scanf(" %ld", &sl->k);
+    scanf(" %u", &sl->k);
+
+	sl->termos_indep = (double *)malloc(sl->n * sizeof(double));
     
 	// string da expressão da função fi(x), sem espaços, na variável x.
 	char fx[SIZE_BUFFER + 1];
 
-	sl->fx = (int **)malloc(sl->n * sizeof(void *));
+	sl->fx = (int **)malloc((sl->k + 1) * sizeof(void *));
 	
-	for (int i = 0; i < sl->n; i++){
+	for (int i = 0; i <= sl->k; i++){
 		scanf(" %s", fx);
 		sl->fx[i] = evaluator_create(fx);
 	}
@@ -69,11 +116,11 @@ void read_input(SisLinear_T *sl, double *epsilon, unsigned int *max_iter){
     scanf(" %lf", epsilon);
 	
 	// número máximo de iterações
-    scanf(" %ld", max_iter);
+    scanf(" %u", max_iter);
 }
 
 
-// /  Retorna tempo em milisegundos
+// Retorna tempo em milisegundos
 double timestamp(void){
 	struct timeval tp;
 	gettimeofday(&tp, NULL);

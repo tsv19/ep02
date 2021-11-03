@@ -18,11 +18,9 @@ utils.o: utils.h
 	gcc -c $(CFLAGS) utils.c $(LIBS)
 
 teste: 
-	./ep02 < sample.in > saida.out
-
-conf-saida:
-	diff sample.in sample.out
+	./ep02 < sample.in > sample.out
 
 clean: 
 	rm $(objects)
+	rm sample.out
 	rm ep02

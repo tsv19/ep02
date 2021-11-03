@@ -23,20 +23,28 @@ typedef struct SisLinear_T {
 } SisLinear_T;
 
 
-// 
-void imprime_sistema(SisLinear_T *sl);
+void imprime_solucao(SisLinear_T *sl);
 
 // 
-void gera_sistema_linear(SisLinear_T *sl){
+void imprime_termos_indep(SisLinear_T *sl);
+
+// 
+void gera_termos_indep(SisLinear_T *sl);
+
+// 
+void imprime_sistema_linear(SisLinear_T *sl);
+
+// 
+void gera_sistema_linear(SisLinear_T *sl);
 
 // 
 void ajusta_sistema_linear(SisLinear_T *sl);
 
 // destroi o sl
-void destroi_SL(SisLinear_T *sl);
+void destroi_sistema_linear(SisLinear_T *sl);
 
 // aloca uma regiao de memoria para o sl
-SisLinear_T *aloca_SL();
+SisLinear_T *aloca_sistema_linear();
 
 // le a os dados de entrada
 void read_input(SisLinear_T *sl, double *epsilon, unsigned int *max_iter);
