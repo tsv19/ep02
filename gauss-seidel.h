@@ -7,9 +7,10 @@
 #include <stdint.h>
 #include <matheval.h>
 #include <math.h>
+#include "utils.h"
 
 
 // 
-void gauss_seidel();
+void gauss_seidel(SisLinear_T *sl, unsigned int max_iter, double epsilon);
 
 #endif

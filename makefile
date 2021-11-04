@@ -22,5 +22,5 @@ teste:
 
 clean: 
 	rm $(objects)
-	rm sample.out
 	rm ep02
+	rm sample.out

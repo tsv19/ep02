@@ -18,16 +18,21 @@ int main(){
 
 	read_input(sistema_linear, &epsilon, &max_iter);
 
-	
 	ajusta_sistema_linear(sistema_linear);
 	gera_sistema_linear(sistema_linear);
 	gera_termos_indep(sistema_linear);
 
 
     tempo = timestamp();
-	// gauss_seidel();
-	tempo = timestamp() - tempo;
+	
+	// double *d = {1, 4, 7, 10, 13, 16};
+	// double *a0 = {0, 0, 0, 0, 0};
+	// double *a1 = {1, 1, 1, 1};
+	// double *c0 = {0, 0, 0, 0, 0};
+	// double *c1 = {0, 1, 2, 3};
 
+	gauss_seidel(sistema_linear, max_iter, epsilon);
+	tempo = timestamp() - tempo;
 	imprime_sistema_linear(sistema_linear);
 	// imprime_termos_indep(sistema_linear);
 	// imprime_solucao(sistema_linear);
