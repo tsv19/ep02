@@ -57,9 +57,11 @@ void gauss_seidel(SisLinear_T *sl, unsigned int max_iter, double epsilon){ //ret
     for (int iter = 0; iter < max_iter; iter++){
         // itime = timestamp(); //tempo inicial
 		for (int i = 0; i < sl->n; i++){
-	        double resultado = sl->termos_indep[i];
+	        double resultado = 0;
 			for (int j = 0; j < sl->n; j++)
-				resultado += sl->coeficientes[i][j] * incognitas[j] * (-1);
+				if (i != j)
+					resultado += sl->coeficientes[i][j] * incognitas[j];
+			resultado = sl->termos_indep[i] - resultado;
 			incognitas[i] = resultado / sl->coeficientes[i][i];
         }
 
@@ -69,7 +71,8 @@ void gauss_seidel(SisLinear_T *sl, unsigned int max_iter, double epsilon){ //ret
 
 		double *residuos = calcula_residuo(sl, incognitas);
 		for (int l = 0; l < sl->n; l++)
-			printf("%lf		%lf\n", incognitas[l], residuos[l]);
+			printf("x: %lf		residuo: %lf\n", incognitas[l], residuos[l]);
+		printf("\n");
     }
 
     // *gs = (time-(*res))/max_iter;
