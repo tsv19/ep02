@@ -33,16 +33,29 @@
 // }
 
 
+double *calcula_residuo(SisLinear_T *sl, double *incognitas){
+	double *residuos = malloc(sl->n * sizeof(double));
+
+	for (int i = 0; i < sl->n; i++){
+		double res = 0.0;
+		for (int j = 0; j < sl->n; j++)
+			res += sl->coeficientes[i][j] * incognitas[j];
+		residuos[i] = res - sl->termos_indep[i];
+	}
+	return residuos;
+}
+
+
 void gauss_seidel(SisLinear_T *sl, unsigned int max_iter, double epsilon){ //retorna int que indica erro
     double itime, etime, time;
     time = 0;
 
 	// Contem aproximacao inicial
     double *incognitas = calloc(sl->n, sizeof(double));
-	
+
 
     for (int iter = 0; iter < max_iter; iter++){
-        itime = timestamp(); //tempo inicial
+        // itime = timestamp(); //tempo inicial
 		for (int i = 0; i < sl->n; i++){
 	        double resultado = sl->termos_indep[i];
 			for (int j = 0; j < sl->n; j++)
@@ -50,14 +63,15 @@ void gauss_seidel(SisLinear_T *sl, unsigned int max_iter, double epsilon){ //ret
 			incognitas[i] = resultado / sl->coeficientes[i][i];
         }
 
-        etime = timestamp(); //tempo final
-        time += etime - itime;
-        // sl->residuos[iter] = Residuo(ls, cf, res);
+        // etime = timestamp(); //tempo final
+        // time += etime - itime;
+
+
+		double *residuos = calcula_residuo(sl, incognitas);
+		for (int l = 0; l < sl->n; l++)
+			printf("%lf		%lf\n", incognitas[l], residuos[l]);
     }
 
-	for (int l = 0; l < sl->n; l++)
-		printf("%lf\n", incognitas[l]);
-
-    // *gs = (time-(*res))/maxIter;
-    // *res = (*res)/maxIter;
+    // *gs = (time-(*res))/max_iter;
+    // *res = (*res)/max_iter;
 }
