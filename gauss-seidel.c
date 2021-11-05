@@ -139,3 +139,110 @@ void gauss_seidel_otimizado(double **diagonais, int n_diagonais, unsigned int ma
 		printf("\n");
 	}
 }
+
+
+// double *gauss_seidel_sem_vetores(SisLinear_T *sl, unsigned int max_iter, double epsilon){
+// 	// Contem aproximacao inicial
+//     double *incognitas = calloc(sl->n, sizeof(double));
+// 	// 	criterio de parada quando a norma das incognitas eh menor que epsilon 
+// 	double norma = 1.0 + epsilon;
+
+//     for (int iter = 0; norma > epsilon && iter < max_iter; iter++){
+// 		norma = 0.0;
+// 		for (int i = 0; i < sl->n; i++){
+// 	        double resultado = 0;
+// 			for (int j = 0; j < sl->n; j++)
+// 				if (i != j)
+// 					resultado += sl->coeficientes[i][j] * incognitas[j];
+			
+// 			// calcula termo independente para com o valor de i
+// 			double termo_indep = evaluator_evaluate_x(sl->fx[sl->k], (double)(i));
+// 			// calcula o xi da próxima iteração
+// 			resultado = termo_indep - resultado;
+// 			resultado = resultado / sl->coeficientes[i][i];
+        
+// 			// Diferenca entre o xi (próximo) e o X[i] (atual)
+// 			double diferenca = fabs(resultado - incognitas[i]);
+// 			incognitas[i] = resultado;
+
+// 			if (diferenca > norma)
+// 				norma = diferenca;
+// 		}
+//     }
+
+// 	return incognitas;
+// }
+
+
+
+double pega_coeficiente(SisLinear_T *sl, int linha, int coluna){
+	int qual_vetor = 0, coeficiente = 0; 
+
+	qual_vetor = (sl->k-1)/2 + linha - coluna;
+
+	// diagonal superior
+	if ( linha - coluna <= 0 )
+		coeficiente = linha;
+	// inferior
+	else if ( linha - coluna > 0 )
+		coeficiente = coluna;
+
+	// sl->coeficientes[qual_vetor][coeficiente];
+	return ;
+}
+
+
+double *gauss_seidel_teste(SisLinear_T *sl, unsigned int max_iter, double epsilon){
+	// Contem aproximacao inicial
+    double *incognitas = calloc(sl->n, sizeof(double));
+	// 	criterio de parada quando a norma das incognitas eh menor que epsilon 
+	double norma = 1.0 + epsilon;
+
+    for (int iter = 0; norma > epsilon && iter < max_iter; iter++){
+		norma = 0.0;
+		
+		// metade de cima da matriz
+		for (int i = 0; i <= (sl->k-1)/2; i++){
+	        double resultado = 0;
+			for (int j = 0; j <= (sl->k-1)/2 + i; j++)
+				if (i != j)
+					resultado += sl->coeficientes[i][j] * incognitas[j];
+			
+			// calcula termo independente para com o valor de i
+			double termo_indep = evaluator_evaluate_x(sl->fx[sl->k], (double)(i));
+			// calcula o xi da próxima iteração
+			resultado = termo_indep - resultado;
+			resultado = resultado / sl->coeficientes[i][i];
+        
+			// Diferenca entre o xi (próximo) e o X[i] (atual)
+			double diferenca = fabs(resultado - incognitas[i]);
+			incognitas[i] = resultado;
+
+			if (diferenca > norma)
+				norma = diferenca;
+		}
+		
+		// metade de baixo da matriz
+		for (int i = (sl->k-1)/2+1; i < sl->n; i++){
+	        double resultado = 0;
+			for (int j = 1 + i; j < sl->n; j++)
+				if (i != j)
+					resultado += sl->coeficientes[i][j] * incognitas[j];
+			
+			// calcula termo independente para com o valor de i
+			double termo_indep = evaluator_evaluate_x(sl->fx[sl->k], (double)(i));
+			// calcula o xi da próxima iteração
+			resultado = termo_indep - resultado;
+			resultado = resultado / sl->coeficientes[i][i];
+        
+			// Diferenca entre o xi (próximo) e o X[i] (atual)
+			double diferenca = fabs(resultado - incognitas[i]);
+			incognitas[i] = resultado;
+
+			if (diferenca > norma)
+				norma = diferenca;
+		}
+    }
+
+	return incognitas;
+}
