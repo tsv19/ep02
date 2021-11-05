@@ -13,6 +13,7 @@
 int main(){
 	double tempo;
 	double epsilon;					// tolerância no método de Gauss-Seidel.
+	double * incognitas;
 	unsigned int max_iter;			// número máximo de iterações.
 	SisLinear_T *sistema_linear;
 	
@@ -28,7 +29,7 @@ int main(){
 	double d[6] = {1, 4, 7, 10, 13, 16};
 	double a0[5] = {0, 2, 4, 6, 8};
 	double a1[4] = {1, 1, 1, 1};
-
+      
 	double* diagonais[5];
 	diagonais[0] = c1;
 	diagonais[1] = c0;
@@ -38,13 +39,12 @@ int main(){
 
 	gauss_seidel_otimizado(diagonais, 5, max_iter, epsilon, 6, sistema_linear->termos_indep);
 
-	// gauss_seidel(sistema_linear, max_iter, epsilon);
+	// incognitas = gauss_seidel(sistema_linear, max_iter, epsilon);
 	// tempo = timestamp() - tempo;
-	// imprime_sistema_linear(sistema_linear);
-	imprime_diagonais(sistema_linear);
+	// imprime_diagonais(sistema_linear);
 	// imprime_termos_indep(sistema_linear);
-	// imprime_solucao(sistema_linear);
-	// printf("tempo: %lf\n", tempo);
+	// imprime_solucao(incognitas, sistema_linear->n);
+	// imprime_tempo(tempo);
 
 	destroi_sistema_linear(sistema_linear);
 	return EXIT_SUCCESS;

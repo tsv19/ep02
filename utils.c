@@ -1,6 +1,13 @@
 
 #include "utils.h"
 
+
+// Imprime o tempo que o metodo de gauss-seidel demorou para solucionar o 
+// sistema linear
+void imprime_tempo(double tempo){
+	printf("tempo: %lf\n", tempo);
+}
+
 // Imprime as k diagonais do sistema linear
 void imprime_diagonais(SisLinear_T *sl){
 	int fx = 0;
@@ -54,34 +61,23 @@ void gera_termos_indep(SisLinear_T *sl){
 }
 
 
-//  apagar(?)
-void imprime_sistema_linear(SisLinear_T *sl){
-	for (int i = 0; i < sl->n; i++){
-		for (int j = 0; j < sl->n; j++)
-			printf("%1.0f ", sl->coeficientes[i][j]);
-		printf("\n");
-	}
-	printf("\n");
-}
-
-
 // Gera os valores das k diagonais
 void gera_sistema_linear(SisLinear_T *sl){
-	int w = 0, l = sl->k - 1;
+	int fx_sup = 0, fx_inf = sl->k - 1;
 
 	// gera os valores para a diagonal principal
 	for (int i = 0; i < sl->n; i++)
-		sl->coeficientes[i][i] = evaluator_evaluate_x(sl->fx[l/2], (double)i);
+		sl->coeficientes[i][i] = evaluator_evaluate_x(sl->fx[fx_inf/2], (double)i);
 
 	// gera os valores para as diagonais superiores e inferiores simultaneamente
 	// das mais distantes da diagonal principal ate as mais proximas
 	for (int indice = (sl->k - 1)/2; indice >= 1; indice--){
 		for (int col = indice, lin = 0; col < sl->n; col++, lin++){
-			sl->coeficientes[lin][col] = evaluator_evaluate_x(sl->fx[w], (double)lin);
-			sl->coeficientes[col][lin] = evaluator_evaluate_x(sl->fx[l], (double)lin);
+			sl->coeficientes[lin][col] = evaluator_evaluate_x(sl->fx[fx_sup], (double)lin);
+			sl->coeficientes[col][lin] = evaluator_evaluate_x(sl->fx[fx_inf], (double)lin);
 		}
-		w++;
-		l--;
+		fx_sup++;
+		fx_inf--;
 	}
 }
 

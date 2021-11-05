@@ -10,8 +10,8 @@
 #include "utils.h"
 
 
-// 
-void gauss_seidel(SisLinear_T *sl, unsigned int max_iter, double epsilon);
+// metodo de gauss-seidel
+double *gauss_seidel(SisLinear_T *sl, unsigned int max_iter, double epsilon);
 void gauss_seidel_otimizado(double **diagonais, int n_diagonais, unsigned int max_iter, double epsilon, int n_matriz, double *termos_indep);
 
 #endif

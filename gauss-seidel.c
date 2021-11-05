@@ -15,7 +15,7 @@ double *calcula_residuo(SisLinear_T *sl, double *incognitas){
 }
 
 
-void gauss_seidel(SisLinear_T *sl, unsigned int max_iter, double epsilon){
+double *gauss_seidel(SisLinear_T *sl, unsigned int max_iter, double epsilon){
 	// Contem aproximacao inicial
     double *incognitas = calloc(sl->n, sizeof(double));
 	// 	criterio de parada quando a norma das incognitas eh menor que epsilon 
@@ -44,7 +44,7 @@ void gauss_seidel(SisLinear_T *sl, unsigned int max_iter, double epsilon){
 		}
     }
 
-	// imprime_solucao(incognitas, sl->n);
+	return incognitas;
 }
 
 

@@ -23,6 +23,10 @@ typedef struct SisLinear_T {
 } SisLinear_T;
 
 
+// Imprime o tempo que o metodo de gauss-seidel demorou para solucionar o 
+// sistema linear
+void imprime_tempo(double tempo);
+
 // Imprime as k diagonais do sistema linear
 void imprime_diagonais(SisLinear_T *sl);
 
@@ -34,9 +38,6 @@ void imprime_termos_indep(SisLinear_T *sl);
 
 // Gera os valores das k diagonais
 void gera_termos_indep(SisLinear_T *sl);
-
-// 
-void imprime_sistema_linear(SisLinear_T *sl);
 
 // 
 void gera_sistema_linear(SisLinear_T *sl);
