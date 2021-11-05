@@ -23,12 +23,16 @@ typedef struct SisLinear_T {
 } SisLinear_T;
 
 
-void imprime_solucao(SisLinear_T *sl);
+// Imprime as k diagonais do sistema linear
+void imprime_diagonais(SisLinear_T *sl);
 
-// 
+// Imprime a solucao encontrada por gauss-seidel
+void imprime_solucao(double *vet, int n);
+
+// Imprime os termos independentes gerados para o sistema linear
 void imprime_termos_indep(SisLinear_T *sl);
 
-// 
+// Gera os valores das k diagonais
 void gera_termos_indep(SisLinear_T *sl);
 
 // 
@@ -37,17 +41,14 @@ void imprime_sistema_linear(SisLinear_T *sl);
 // 
 void gera_sistema_linear(SisLinear_T *sl);
 
-// 
-void ajusta_sistema_linear(SisLinear_T *sl);
-
 // destroi o sl
 void destroi_sistema_linear(SisLinear_T *sl);
 
 // aloca uma regiao de memoria para o sl
-SisLinear_T *aloca_sistema_linear();
+SisLinear_T *aloca_sistema_linear(unsigned int n, unsigned int k, int **fx);
 
 // le a os dados de entrada
-void read_input(SisLinear_T *sl, double *epsilon, unsigned int *max_iter);
+SisLinear_T *read_input(double *epsilon, unsigned int *max_iter);
 
 //  Retorna tempo em milisegundos
 double timestamp(void);

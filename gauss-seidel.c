@@ -1,37 +1,6 @@
 
 #include "gauss-seidel.h"
 
-// // supondo NAO pivotamento total
-// void retrosub(SisLinear_T *sl){
-// 	double *incognitas = calloc(sl->n, sizeof(double));
-// 	for (int i = sl->n - 1; i >= 0; i--){
-// 		for (int j = sl->n -1; j >=0; j--){
-// 			incognitas[i] += sl->termos_indep[i] / sl->coeficientes[i][j];
-// 			for (int j = i; j < sl->n; j++){
-// 				incognitas[i] += sl->coeficientes[k][j]
-// 			}
-// 		}
-// 	}
-// }
-
-
-// void gauss_seidel(SisLinear_T *sl){
-// 	/* para cada linha a partir da primeira */
-// 	for (int i = 0; i < sl->n; i++){
-// 		// uint iPivo = encontraMax(A, i);
-// 		// if ( i != iPivo )
-// 		// 	trocaLinha( A, b, i, iPivo );
-
-// 		for (int k = i + 1; k < sl->n; k++){
-// 			double m = sl->coeficientes[k][i] / sl->coeficientes[i][i];
-// 			sl->coeficientes[k][i] = 0.0;
-// 			for (int j = i + 1; j < sl->n; j++)
-// 				sl->coeficientes[k][j] -= sl->coeficientes[i][j] * m;
-// 			sl->termos_indep[k] -= sl->termos_indep[i] * m;
-// 		}
-// 	}
-// }
-
 
 double *calcula_residuo(SisLinear_T *sl, double *incognitas){
 	double *residuos = malloc(sl->n * sizeof(double));
@@ -46,35 +15,127 @@ double *calcula_residuo(SisLinear_T *sl, double *incognitas){
 }
 
 
-void gauss_seidel(SisLinear_T *sl, unsigned int max_iter, double epsilon){ //retorna int que indica erro
-    double itime, etime, time;
-    time = 0;
-
+void gauss_seidel(SisLinear_T *sl, unsigned int max_iter, double epsilon){
 	// Contem aproximacao inicial
     double *incognitas = calloc(sl->n, sizeof(double));
+	// 	criterio de parada quando a norma das incognitas eh menor que epsilon 
+	double norma = 1.0 + epsilon;
 
-
-    for (int iter = 0; iter < max_iter; iter++){
-        // itime = timestamp(); //tempo inicial
+    for (int iter = 0; norma > epsilon && iter < max_iter; iter++){
+		norma = 0.0;
 		for (int i = 0; i < sl->n; i++){
 	        double resultado = 0;
 			for (int j = 0; j < sl->n; j++)
 				if (i != j)
 					resultado += sl->coeficientes[i][j] * incognitas[j];
-			resultado = sl->termos_indep[i] - resultado;
-			incognitas[i] = resultado / sl->coeficientes[i][i];
-        }
+			
+			// calcula termo independente para com o valor de i
+			double termo_indep = evaluator_evaluate_x(sl->fx[sl->k], (double)(i));
+			// calcula o xi da próxima iteração
+			resultado = termo_indep - resultado;
+			resultado = resultado / sl->coeficientes[i][i];
+        
+			// Diferenca entre o xi (próximo) e o X[i] (atual)
+			double diferenca = fabs(resultado - incognitas[i]);
+			incognitas[i] = resultado;
 
-        // etime = timestamp(); //tempo final
-        // time += etime - itime;
-
-
-		double *residuos = calcula_residuo(sl, incognitas);
-		for (int l = 0; l < sl->n; l++)
-			printf("x: %lf		residuo: %lf\n", incognitas[l], residuos[l]);
-		printf("\n");
+			if (diferenca > norma)
+				norma = diferenca;
+		}
     }
 
-    // *gs = (time-(*res))/max_iter;
-    // *res = (*res)/max_iter;
+	// imprime_solucao(incognitas, sl->n);
+}
+
+
+// double *calcula_residuo_otimizado(double **diagonais, double *termos_indep, int n_diagonais, double *incognitas, int n_matriz){
+// 	double *residuos = malloc(n_matriz * sizeof(double));
+// 	int metade_diagonal = (n_diagonais - 1) / 2;
+
+// 	for (int linha = 0; linha < n_matriz; linha++){
+// 		double resultado = 0.0;
+
+// 		// esquerda (abaixo da diagonal)
+// 		for (int coluna = linha - 1; ((coluna >= 0) && (coluna >= linha - metade_diagonal)); coluna--){
+// 			// na esquerda, o indice que identifica o vetor eh 
+// 			int indice_diagonal = metade_diagonal + linha;
+
+// 			// na esquerda, o indice dos valores do vetor vai diminuindo de um em um conforme se afasta da diagonal
+// 			int indice_valores = coluna;
+
+// 			if (indice_diagonal < n_diagonais)
+// 				resultado += diagonais[indice_diagonal][indice_valores] * incognitas[coluna];
+// 		}
+
+// 		// direita (acima da diagonal)
+// 		for (int coluna = linha + 1; coluna < metade_diagonal; coluna++){
+// 			// na direita, o indice dos valores do vetor eh igual ao numero da linha
+// 			int indice_valores = linha;
+
+// 			// na direita, o indice que identifica o vetor eh igual ao numero da coluna
+// 			int indice_diagonal = metade_diagonal - coluna;
+
+// 			if (indice_diagonal < n_diagonais)
+// 				resultado += diagonais[indice_diagonal][indice_valores] * incognitas[coluna];
+// 		}
+// 		resultado += diagonais[metade_diagonal][linha] * incognitas[linha];
+// 		residuos[linha] = resultado - termos_indep[linha];
+// 	}
+
+// 	return residuos;
+// }
+
+
+void gauss_seidel_otimizado(double **diagonais, int n_diagonais, unsigned int max_iter, double epsilon, int n_matriz, double *termos_indep){
+    double *incognitas = calloc(n_matriz, sizeof(double));
+	int metade_diagonal = (n_diagonais - 1) / 2;
+	double norma = 1.0 + epsilon;
+
+    for (int iter = 0; norma > epsilon && iter < max_iter; iter++){
+		norma = 0.0;
+		for (int linha = 0; linha < n_matriz; linha++){
+			double resultado = 0.0;
+
+			// direita (acima da diagonal)
+			printf("dir\n");
+			int indice_diagonal = 0;
+			for (int coluna = 0; coluna < n_matriz; coluna++){
+				// na direita, o indice dos valores do vetor eh igual ao numero da linha
+				int indice_valores = linha;
+				int limite = n_matriz - metade_diagonal + indice_diagonal;
+				int coluna_incognitas = metade_diagonal - indice_diagonal;
+				// int coluna_incognitas = metade_diagonal - indice_diagonal + linha;
+				if ((indice_diagonal < metade_diagonal) && (indice_valores < limite)){
+					printf("DIA[%d][%d] %lf INC[%d] %lf\n", indice_diagonal, indice_valores, diagonais[indice_diagonal][indice_valores], coluna_incognitas, incognitas[coluna_incognitas]);
+					resultado += diagonais[indice_diagonal][indice_valores] * incognitas[coluna_incognitas];
+				}
+				indice_diagonal += 1;
+			}
+
+			// esquerda (abaixo da diagonal)
+			printf("esq\n");
+			indice_diagonal = metade_diagonal + 1;
+			for (int coluna = linha; (coluna >= 0); coluna--){
+				// na esquerda, o indice dos valores do vetor vai diminuindo de um em um conforme se afasta da diagonal
+				int indice_valores = coluna - 1;
+				if ((indice_diagonal < n_diagonais) && (indice_valores >= 0)){
+					printf("DIA[%d][%d] %lf INC[%d] %lf\n", indice_diagonal, indice_valores, diagonais[indice_diagonal][indice_valores], coluna-1, incognitas[coluna-1]);
+					resultado += diagonais[indice_diagonal][indice_valores] * incognitas[coluna-1];
+				}
+				indice_diagonal += 1;
+			}
+
+			resultado = (termos_indep[linha] - resultado) / diagonais[metade_diagonal][linha];
+			double diferenca = fabs(resultado - incognitas[linha]);
+			incognitas[linha] = resultado;
+
+			if (diferenca > norma)
+				norma = diferenca;
+
+			// for (int l = 0; l < n_matriz; l++)
+			// 	printf("x: %lf\n", incognitas[l]);
+			// printf("\n");
+		}
+		printf("\n");
+	}
 }
