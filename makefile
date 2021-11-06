@@ -1,4 +1,6 @@
 
+DEDBUG = -g
+
 CFLAGS = -Wall
 
 LIBS = -lm -I/usr/include -L/usr/lib -lmatheval
@@ -21,6 +23,9 @@ utils.o: utils.c utils.h
 
 teste: 
 	./ep02 < sample.in > sample.out
+
+debug: $(objects)
+	gcc $(CFLAGS) $(objects) $(DEBUG) $(LIBS)
 
 clean: 
 	rm $(objects)

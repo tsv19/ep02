@@ -10,29 +10,24 @@ void imprime_tempo(double tempo){
 
 // Imprime as k diagonais do sistema linear
 void imprime_diagonais(SisLinear_T *sl){
-	int fx = 0;
-	double value = 0.0;
+	int qual_vetor;
+	int tamanho = sl->n - ( sl->k - 1 )/2;
 
-	// Imprime as diagonais superiores da mais externa ate a
-	// diagonal principal
-	for (int indice = (sl->k - 1)/2; indice >= 0; indice--){
-		for (int k = indice, i = 0; k < sl->n; k++, i++){
-			value = evaluator_evaluate_x(sl->fx[fx], (double)i);
-			printf("%1.0f ", value);
+	for (qual_vetor = 0; qual_vetor <= (sl->k - 1)/2; qual_vetor++){
+		for (int tam = 0; tam < tamanho ; tam++){
+			printf("%lf ", sl->coeficientes[qual_vetor][tam]);
 		}
 		printf("\n");
-		fx++;
+		tamanho++;
 	}
 
-	// Imprime as diagonais inferiores da mais interna para a
-	// mais externa  
-	for (int indice = 1; indice <= (sl->k - 1)/2; indice++){
-		for (int k = indice, i = 0; k < sl->n; k++, i++){
-			value = evaluator_evaluate_x(sl->fx[fx], (double)i);
-			printf("%1.0f ", value);
+	tamanho -= 2;
+	for (int qual_vetor2 = qual_vetor; qual_vetor2 < sl->k; qual_vetor2++){
+		for (int tam = 0; tam < tamanho ; tam++){
+			printf("%lf ", sl->coeficientes[qual_vetor][tam]);
 		}
 		printf("\n");
-		fx++;
+		tamanho--;
 	}
 }
 
@@ -49,35 +44,31 @@ void imprime_solucao(double *vet, int n){
 // Imprime os termos independentes gerados para o sistema linear
 void imprime_termos_indep(SisLinear_T *sl){
 	for (int i = 0; i < sl->n; i++)
-		printf("%1.0f ", evaluator_evaluate_x(sl->fx[sl->k], (double)(i)));
+		printf("%lf ", evaluator_evaluate_x(sl->fx[sl->k], (double)(i)));
 	printf("\n");
-}
-
-
-// apagar(?)
-void gera_termos_indep(SisLinear_T *sl){
-	for (int i = 0; i < sl->n; i++)
-		sl->termos_indep[i] = evaluator_evaluate_x(sl->fx[sl->k], (double)(i));
 }
 
 
 // Gera os valores das k diagonais
 void gera_sistema_linear(SisLinear_T *sl){
-	int fx_sup = 0, fx_inf = sl->k - 1;
+	int qual_vetor;
+	int tamanho = sl->n - ( sl->k - 1 )/2;
 
-	// gera os valores para a diagonal principal
-	for (int i = 0; i < sl->n; i++)
-		sl->coeficientes[i][i] = evaluator_evaluate_x(sl->fx[fx_inf/2], (double)i);
-
-	// gera os valores para as diagonais superiores e inferiores simultaneamente
-	// das mais distantes da diagonal principal ate as mais proximas
-	for (int indice = (sl->k - 1)/2; indice >= 1; indice--){
-		for (int col = indice, lin = 0; col < sl->n; col++, lin++){
-			sl->coeficientes[lin][col] = evaluator_evaluate_x(sl->fx[fx_sup], (double)lin);
-			sl->coeficientes[col][lin] = evaluator_evaluate_x(sl->fx[fx_inf], (double)lin);
+	for (qual_vetor = 0; qual_vetor <= (sl->k - 1)/2; qual_vetor++){
+		for (int tam = 0; tam < tamanho ; tam++){
+			double valor = evaluator_evaluate_x(sl->fx[qual_vetor], (double)tam);
+			sl->coeficientes[qual_vetor][tam] = valor;
 		}
-		fx_sup++;
-		fx_inf--;
+		tamanho++;
+	}
+
+	tamanho -= 2;
+	for (int qual_vetor2 = qual_vetor; qual_vetor2 < sl->k; qual_vetor2++){
+		for (int tam = 0; tam < tamanho ; tam++){
+			double valor = evaluator_evaluate_x(sl->fx[qual_vetor2], (double)tam);
+			sl->coeficientes[qual_vetor2][tam] = valor;
+		}
+		tamanho--;
 	}
 }
 
@@ -87,9 +78,10 @@ void destroi_sistema_linear(SisLinear_T *sl){
 	for (int i = 0; i <= sl->k; i++)
 		free(sl->fx[i]);
 
-	free(sl->matriz);
+	for (int i = 0; i < sl->k; i++)
+		free(sl->coeficientes[i]);
+	
 	free(sl->coeficientes);
-	free(sl->termos_indep);
 	free(sl);
 }
 
@@ -99,18 +91,21 @@ SisLinear_T *aloca_sistema_linear(unsigned int n, unsigned int k, int **fx){
 	SisLinear_T *sl = (SisLinear_T *)malloc(sizeof(SisLinear_T));
 	sl->n = n;
 	sl->k = k;
-	sl->termos_indep = (double *)malloc(sl->n * sizeof(double));
 	sl->fx = fx;
 
-	// aloca um vetor de n ponteiros para linhas
-	sl->coeficientes = malloc(sl->n * sizeof (double *));
-	
-	// aloca um vetor com todos os elementos da matriz
-	sl->coeficientes[0] = sl->matriz = calloc(sl->n * sl->n, sizeof(double));
-	
-	// ajusta os demais ponteiros de linhas (i > 0)
-	for (int i = 1; i < sl->n; i++)
-		sl->coeficientes[i] = sl->coeficientes[0] + i * sl->n;
+	sl->coeficientes = (double **)malloc((sl->k-1) * sizeof (double *));
+
+	// aloca vetores com tamanho variavel
+	int inicio 	= n - ( k - 1 )/2;
+	int fim 	= n;
+
+	for (int i = inicio, indice = 0; i <= fim && indice <= (k - 1)/2; i++, indice++){
+		sl->coeficientes[indice] = (double *)malloc(i * sizeof(double));
+	}
+
+	for (int i = fim - 1, indice = (k - 1)/2 + 1; i >= inicio && indice < k; i--, indice++){
+		sl->coeficientes[indice] = (double *)malloc(i * sizeof(double));
+	}
 	
 	return sl;
 }

@@ -9,17 +9,13 @@
 #include <math.h>
 #include <sys/time.h>
 
-
 #define SIZE_BUFFER 1024
 
-
 typedef struct SisLinear_T {
-	unsigned int n; 	// dimensao do SL
-	unsigned int k;		// número de diagonais (sempre um número ímpar, k < n)
-	double *matriz;			
-	double **coeficientes;
-	double *termos_indep;
-	int **fx;			// funções do SL.
+	unsigned int n; 		// dimensao do sistema linear
+	unsigned int k;			// número de diagonais (sempre um número ímpar, k < n)
+	double **coeficientes; 	// coeficientes do sistema linear
+	int **fx;				// funções do SL.
 } SisLinear_T;
 
 
@@ -36,10 +32,7 @@ void imprime_solucao(double *vet, int n);
 // Imprime os termos independentes gerados para o sistema linear
 void imprime_termos_indep(SisLinear_T *sl);
 
-// Gera os valores das k diagonais
-void gera_termos_indep(SisLinear_T *sl);
-
-// 
+// calcula os coeficientes e armazena nos vetores das suas diagonais
 void gera_sistema_linear(SisLinear_T *sl);
 
 // destroi o sl
@@ -51,7 +44,7 @@ SisLinear_T *aloca_sistema_linear(unsigned int n, unsigned int k, int **fx);
 // le a os dados de entrada
 SisLinear_T *read_input(double *epsilon, unsigned int *max_iter);
 
-//  Retorna tempo em milisegundos
+// Retorna tempo em milisegundos
 double timestamp(void);
 
 #endif
